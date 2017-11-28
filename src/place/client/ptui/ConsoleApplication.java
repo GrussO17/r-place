@@ -1,4 +1,4 @@
-package reversi_ptui;
+package place.client.ptui;
 
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;

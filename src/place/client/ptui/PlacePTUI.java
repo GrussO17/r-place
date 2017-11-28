@@ -1,6 +1,6 @@
 package place.client.ptui;
 
-public class PlacePTUI {
+public class PlacePTUI extends ConsoleApplication {
     public static void main(String[] args) {
 
     }
