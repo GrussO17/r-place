@@ -1,4 +1,7 @@
 package place.client.model;
 
-public class ClientModel {
+import java.util.Observable;
+
+public class ClientModel extends Observable {
+
 }
