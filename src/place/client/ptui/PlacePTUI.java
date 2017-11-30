@@ -39,6 +39,7 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
             int port = Integer.parseInt(args.get(1));
             String username = args.get(2);
 
+
             this.model = new ClientModel();
             this.serverConn = new NetworkClient(host, port, username, model);
         }
