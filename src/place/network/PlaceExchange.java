@@ -17,7 +17,7 @@ public class PlaceExchange {
         }
     }
 
-    public static PlaceRequest recieve(ObjectInputStream in)
+    public static PlaceRequest receive(ObjectInputStream in)
             throws PlaceException {
         try {
             return (PlaceRequest) in.readObject();
