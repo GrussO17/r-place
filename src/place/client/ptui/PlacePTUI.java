@@ -1,5 +1,6 @@
 package place.client.ptui;
 
+import place.PlaceException;
 import place.client.model.ClientModel;
 import place.client.network.NetworkClient;
 
@@ -32,6 +33,26 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
      */
     private PrintWriter userOut;
 
+
+    public synchronized void go(Scanner userIn, PrintWriter userOut){
+        this.userOut = userOut;
+        this.model.addObserver(this);
+
+        this.refresh();
+
+        while ( this.model.getStatus() == Board.Status.NOT_OVER ) {
+            try {
+                this.wait();
+            }
+            catch( InterruptedException ie ) {}
+        }
+
+
+
+    }
+
+
+
     public void init() {
         try {
             List<String> args = super.getArguments();
@@ -39,11 +60,22 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
             int port = Integer.parseInt(args.get(1));
             String username = args.get(2);
 
-
             this.model = new ClientModel();
             this.serverConn = new NetworkClient(host, port, username, model);
         }
+        catch(PlaceException e){
+            e.printStackTrace();
+        }
     }
+
+    public void stop() {
+        this.userIn.close();
+        this.userOut.close();
+        this.serverConn.close();
+    }
+
+
+
 
     public static void main(String[] args) {
         ConsoleApplication.launch(PlacePTUI.class, args);

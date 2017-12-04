@@ -66,6 +66,16 @@ public class NetworkClient {
         }
     }
 
+    public void close(){
+        try {
+            this.sock.close();
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+
     public void sendMove(PlaceTile tile) {
         PlaceExchange.send(new PlaceRequest(PlaceRequest.RequestType.CHANGE_TILE, tile), networkOut);
     }
