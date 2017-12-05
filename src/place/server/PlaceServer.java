@@ -3,11 +3,11 @@ package place.server;
 import place.PlaceException;
 import place.network.PlaceExchange;
 import place.network.PlaceRequest;
+import place.server.model.ServerModel;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,6 +21,7 @@ public class PlaceServer {
         }
         int portNum = Integer.parseInt(args[0]);
         int size = Integer.parseInt(args[1]);
+        ServerModel model = new ServerModel(size);
         try(ServerSocket serverSocket = new ServerSocket(portNum)){
             while(true){
                 Socket client = serverSocket.accept();
@@ -30,7 +31,7 @@ public class PlaceServer {
                         String username = (String)loginRequest.getData();
                         if (!users.contains(username)) {
                             users.add(username);
-                            new PlaceClientThread(client, username).start();
+                            new PlaceClientThread(client, username, model).start();
                             System.out.println("Started thread for user " + username);
                         } else {
                             System.out.println("Rejected socket for user " + username);
@@ -45,5 +46,7 @@ public class PlaceServer {
             e.printStackTrace();
         }
     }
-
+    private static void logoff(String username) {
+        users.remove(username);
+    }
 }
