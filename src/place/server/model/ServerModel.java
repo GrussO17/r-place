@@ -12,6 +12,8 @@ public class ServerModel extends Observable {
         board = new PlaceBoard(dim);
     }
 
+    public PlaceBoard getPlaceBoard(){return board;}
+
     public PlaceTile[][] getBoard() {
         return board.getBoard();
     }
