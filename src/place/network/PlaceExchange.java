@@ -10,7 +10,7 @@ public class PlaceExchange {
     public static void send(PlaceRequest req, ObjectOutputStream out)
             throws PlaceException {
         try {
-            out.writeObject(req);
+            out.writeUnshared(req);
             out.flush();
         } catch (IOException e) {
             throw new PlaceException(e);
@@ -20,7 +20,7 @@ public class PlaceExchange {
     public static PlaceRequest receive(ObjectInputStream in)
             throws PlaceException {
         try {
-            return (PlaceRequest) in.readObject();
+            return (PlaceRequest) in.readUnshared();
         } catch (IOException | ClassNotFoundException e) {
             throw new PlaceException(e);
         }
