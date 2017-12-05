@@ -6,6 +6,7 @@ import place.client.network.NetworkClient;
 
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Observable;
 import java.util.Observer;
 import java.util.Scanner;
 
@@ -51,6 +52,14 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
 
     }
 
+    @Override
+    public void update(Observable t, Object o ) {
+
+        assert t == this.model: "Update from non-model Observable";
+
+        this.refresh();
+
+    }
 
 
     public void init() {

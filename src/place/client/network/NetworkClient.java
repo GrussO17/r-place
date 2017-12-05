@@ -117,12 +117,12 @@ public class NetworkClient {
     }
 
 
-    public void close()throws PlaceException{
+    public void close(){
         try {
             this.sock.close();
         }
         catch(IOException e){
-            throw new PlaceException(e);
+            e.printStackTrace();
         }
     }
 
