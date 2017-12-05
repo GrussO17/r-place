@@ -17,6 +17,7 @@ public class PlaceClientThread extends Thread {
             this.out = (ObjectOutputStream)socket.getOutputStream();
         } catch (IOException e) {
             System.err.println("IO exception creating client-thread streams");
+            e.printStackTrace();
             return;
         }
         this.username = username;
