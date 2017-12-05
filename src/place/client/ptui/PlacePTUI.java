@@ -1,6 +1,7 @@
 package place.client.ptui;
 
 import place.PlaceException;
+import place.PlaceTile;
 import place.client.model.ClientModel;
 import place.client.network.NetworkClient;
 
@@ -35,32 +36,28 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
     private PrintWriter userOut;
 
 
-    public synchronized void go(Scanner userIn, PrintWriter userOut){
+    public synchronized void go(Scanner userIn, PrintWriter userOut) {
+        this.userIn = userIn;
         this.userOut = userOut;
         this.model.addObserver(this);
-
         this.refresh();
+    }
 
-        while ( this.model.getStatus() == Board.Status.NOT_OVER ) {
-            try {
-                this.wait();
+    public void update(Observable t, Object o) {
+        assert t == this.model : "Update from non-model Observable";
+        this.refresh();
+    }
+
+    public void refresh() {
+        for (PlaceTile[] row : model.getBoard()) {
+            for (PlaceTile tile : row) {
+                userOut.print(tile.getColor());
             }
-            catch( InterruptedException ie ) {}
+            userOut.println();
         }
-
-
-
+        userOut.print("Enter your move [row] [col] [color]: ");
+        userOut.print("you typed: " + userIn.nextLine()); //TODO: will this get interrupted if the board updates again?
     }
-
-    @Override
-    public void update(Observable t, Object o ) {
-
-        assert t == this.model: "Update from non-model Observable";
-
-        this.refresh();
-
-    }
-
 
     public void init() {
         try {
@@ -71,8 +68,7 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
 
             this.model = new ClientModel();
             this.serverConn = new NetworkClient(host, port, username, model);
-        }
-        catch(PlaceException e){
+        } catch (PlaceException e) {
             e.printStackTrace();
         }
     }
@@ -82,8 +78,6 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
         this.userOut.close();
         this.serverConn.close();
     }
-
-
 
 
     public static void main(String[] args) {

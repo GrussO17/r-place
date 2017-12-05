@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class PlaceServer {
-    private static final Set<String> users = new HashSet<>(Arrays.asList("peter", "owen", "test1", "test2"));
+    private static Set<String> users = new HashSet<>();
 
     public static void main(String[] args)  {
         if(args.length != 2){
@@ -28,7 +28,8 @@ public class PlaceServer {
                     PlaceRequest loginRequest = PlaceExchange.receive((ObjectInputStream) client.getInputStream());
                     if (loginRequest.getType() == PlaceRequest.RequestType.LOGIN) {
                         String username = (String)loginRequest.getData();
-                        if (users.contains(username)) {
+                        if (!users.contains(username)) {
+                            users.add(username);
                             new PlaceClientThread(client, username).start();
                             System.out.println("Started thread for user " + username);
                         } else {
@@ -43,6 +44,6 @@ public class PlaceServer {
         catch(IOException e){
             e.printStackTrace();
         }
-
     }
+
 }
