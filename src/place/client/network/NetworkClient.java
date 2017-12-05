@@ -1,5 +1,6 @@
 package place.client.network;
 
+import place.PlaceBoard;
 import place.PlaceException;
 import place.PlaceTile;
 import place.client.model.ClientModel;
@@ -9,6 +10,8 @@ import place.network.PlaceRequest;
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
+
+import static place.network.PlaceRequest.RequestType.LOGIN;
 
 public class NetworkClient {
     private Socket sock;
@@ -66,17 +69,65 @@ public class NetworkClient {
         }
     }
 
-    public void close(){
+
+
+    public void run(){
+        while ( this.goodToGo() ) {
+            try {
+                PlaceRequest input = (PlaceRequest) this.networkIn.readUnshared();
+                PlaceRequest.RequestType type = input.getType();
+                switch(type){
+                    case LOGIN_SUCCESS:
+                        loginSuccess();
+                        break;
+                    case BOARD:
+                        board((PlaceBoard)input.getData());
+                        break;
+                    case TILE_CHANGED:
+                        tileChanged((PlaceTile)input.getData());
+                        break;
+                    default:
+                        System.err.println("Unrecognized Request" + input.toString());
+                        this.stop();
+                        break;
+                }
+
+            }
+            catch(IOException | ClassNotFoundException e ){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void loginSuccess(){
+        System.out.println("Successfully connected to server");
+    }
+
+    public void tileChanged(PlaceTile tile){
+        model.setTile(tile);
+    }
+
+    public void board(PlaceBoard board){
+        model.createBoard(board.DIM);
+    }
+
+
+    public void sendTile(PlaceTile tile) throws IOException{
+        this.networkOut.writeUnshared(new PlaceRequest(PlaceRequest.RequestType.CHANGE_TILE, tile));
+    }
+
+
+    public void close()throws PlaceException{
         try {
             this.sock.close();
         }
         catch(IOException e){
-            e.printStackTrace();
+            throw new PlaceException(e);
         }
     }
 
 
-    public void sendMove(PlaceTile tile) {
+    public void sendMove(PlaceTile tile) throws PlaceException{
         PlaceExchange.send(new PlaceRequest(PlaceRequest.RequestType.CHANGE_TILE, tile), networkOut);
     }
 }
