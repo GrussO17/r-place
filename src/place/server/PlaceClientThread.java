@@ -9,8 +9,10 @@ import place.server.model.ServerModel;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Observable;
+import java.util.Observer;
 
-public class PlaceClientThread extends Thread {
+public class PlaceClientThread extends Thread implements Observer {
 
     private ObjectInputStream in;
     private ObjectOutputStream out;
@@ -19,6 +21,7 @@ public class PlaceClientThread extends Thread {
 
     public PlaceClientThread(ObjectInputStream in, ObjectOutputStream out, String username, ServerModel board) {
         this.board = board;
+        this.board.addObserver(this);
         this.in = in;
         this.out = out;
         this.username = username;
@@ -30,6 +33,14 @@ public class PlaceClientThread extends Thread {
             out.close();
         } catch (IOException e) {
             System.err.println("Failed closing client socket");
+        }
+    }
+
+    public void update(Observable obs, Object o) {
+        try {
+            PlaceExchange.send((new PlaceRequest<>(PlaceRequest.RequestType.TILE_CHANGED, (PlaceTile) o)), out);
+        } catch (PlaceException e) {
+            System.err.println("error sending updated move");
         }
     }
 
@@ -47,7 +58,6 @@ public class PlaceClientThread extends Thread {
                     if (board.isValid(tile)) {
                         board.setTile(tile);
                         System.out.println("move made: " + tile.toString());
-                        PlaceExchange.send((new PlaceRequest<>(PlaceRequest.RequestType.TILE_CHANGED, tile)), out);
                     } else {
                         out.writeUnshared(new PlaceRequest<>(PlaceRequest.RequestType.ERROR, "Invalid move"));
                     }
@@ -55,11 +65,11 @@ public class PlaceClientThread extends Thread {
                     break;
                 }
             }
-        } catch (IOException | ClassNotFoundException | PlaceException e) {
-            e.printStackTrace();
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println(e.getMessage());
         } finally {
-            close();
             PlaceServer.logoff(username);
+            close();
         }
 
     }

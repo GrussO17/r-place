@@ -36,6 +36,11 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
      */
     private PrintWriter userOut;
 
+    /**
+     * The username of this client
+     */
+    private String username;
+
     public synchronized void go(Scanner userIn, PrintWriter userOut) {
         this.userIn = userIn;
         this.userOut = userOut;
@@ -66,16 +71,27 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
                 userOut.println();
             }
             userOut.println();
-            userOut.print("Enter your move [row] [col] [color]: ");
-            userOut.flush();
             PlaceColor color = PlaceColor.WHITE;
-            String[] response = userIn.nextLine().split(" ");
-            for (PlaceColor c : PlaceColor.values()) {
-                if (c.getNumber() == Integer.parseInt(response[2]))
-                    color = c;
+            String[] response;
+            while (true) {
+                userOut.print("Enter your move [row] [col] [color]: ");
+                userOut.flush();
+                try {
+                    response = userIn.nextLine().split(" ");
+                    int row = Integer.parseInt(response[0]);
+                    int col = Integer.parseInt(response[1]);
+                    int colorNum = Integer.parseInt(response[2]);
+                    for (PlaceColor c : PlaceColor.values()) {
+                        if (c.getNumber() == colorNum) {
+                            color = c;
+                        }
+                    }
+                    serverConn.sendMove(new PlaceTile(row, col, username, color));
+                    break;
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input, try again");
+                }
             }
-            serverConn.sendMove(new PlaceTile(Integer.parseInt(response[0]),
-                    Integer.parseInt(response[1]), getArguments().get(2), color));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,7 +102,7 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
             List<String> args = super.getArguments();
             String host = args.get(0);
             int port = Integer.parseInt(args.get(1));
-            String username = args.get(2);
+            username = args.get(2);
 
             this.model = new ClientModel();
             this.model.addObserver(this);

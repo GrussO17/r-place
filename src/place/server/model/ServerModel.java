@@ -20,7 +20,8 @@ public class ServerModel extends Observable {
 
     public void setTile(PlaceTile tile) {
         board.setTile(tile);
-        this.notifyObservers();
+        setChanged();
+        this.notifyObservers(tile);
     }
 
     public boolean isValid(PlaceTile tile) {

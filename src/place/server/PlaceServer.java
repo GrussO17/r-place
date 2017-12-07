@@ -22,10 +22,10 @@ public class PlaceServer {
         int portNum = Integer.parseInt(args[0]);
         int size = Integer.parseInt(args[1]);
         ServerModel model = new ServerModel(size);
+        System.out.println("Server started");
         try (ServerSocket serverSocket = new ServerSocket(portNum)) {
             while (true) {
                 Socket client = serverSocket.accept();
-
                 ObjectInputStream in = new ObjectInputStream(client.getInputStream());
                 ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
                 PlaceRequest loginRequest = PlaceExchange.receive(in);
@@ -36,6 +36,8 @@ public class PlaceServer {
                         new PlaceClientThread(in, out, username, model).start();
                         System.out.println("Started thread for user " + username);
                     } else {
+                        PlaceExchange.send(new PlaceRequest<>(PlaceRequest.RequestType.ERROR,
+                                "Username already taken"), out);
                         System.out.println("Rejected socket for user " + username);
                     }
                 }

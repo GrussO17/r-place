@@ -64,6 +64,9 @@ public class NetworkClient extends Thread {
                     case TILE_CHANGED:
                         tileChanged((PlaceTile) input.getData());
                         break;
+                    case ERROR:
+                        System.out.println("Error: " + input.getData());
+                        break MAINLOOP;
                     default:
                         System.err.println("Unrecognized request: " + input.toString());
                         break MAINLOOP;
@@ -71,6 +74,9 @@ public class NetworkClient extends Thread {
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
+        } finally {
+            close();
+            System.exit(1);
         }
     }
 
@@ -89,7 +95,9 @@ public class NetworkClient extends Thread {
 
     public void close() {
         try {
-            this.sock.close();
+            networkIn.close();
+            networkOut.close();
+            sock.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
