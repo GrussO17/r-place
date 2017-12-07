@@ -26,12 +26,14 @@ public class PlaceServer {
             while(true){
                 Socket client = serverSocket.accept();
                 try {
-                    PlaceRequest loginRequest = PlaceExchange.receive(new ObjectInputStream(client.getInputStream()));
+                    ObjectInputStream in = new ObjectInputStream(client.getInputStream());
+                    ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
+                    PlaceRequest loginRequest = PlaceExchange.receive(in);
                     if (loginRequest.getType() == PlaceRequest.RequestType.LOGIN) {
                         String username = (String)loginRequest.getData();
                         if (!users.contains(username)) {
                             users.add(username);
-                            new PlaceClientThread(client, username, model).start();
+                            new PlaceClientThread(in, out, username, model).start();
                             System.out.println("Started thread for user " + username);
                         } else {
                             System.out.println("Rejected socket for user " + username);
@@ -46,7 +48,8 @@ public class PlaceServer {
             e.printStackTrace();
         }
     }
-    private static void logoff(String username) {
+    public static void logoff(String username) {
         users.remove(username);
+        System.out.println(username + " logged off");
     }
 }
