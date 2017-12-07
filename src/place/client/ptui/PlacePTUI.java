@@ -41,6 +41,10 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
      */
     private String username;
 
+    public static void main(String[] args) {
+        ConsoleApplication.launch(PlacePTUI.class, args);
+    }
+
     public synchronized void go(Scanner userIn, PrintWriter userOut) {
         this.userIn = userIn;
         this.userOut = userOut;
@@ -59,7 +63,7 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
         this.refresh();
     }
 
-    public void refresh() {
+    private void refresh() {
         if (model.getBoard() == null) {
             return;
         }
@@ -117,10 +121,5 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
         this.userIn.close();
         this.userOut.close();
         this.serverConn.close();
-    }
-
-
-    public static void main(String[] args) {
-        ConsoleApplication.launch(PlacePTUI.class, args);
     }
 }

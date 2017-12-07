@@ -38,10 +38,12 @@ public class PlaceServer {
                     } else {
                         PlaceExchange.send(new PlaceRequest<>(PlaceRequest.RequestType.ERROR,
                                 "Username already taken"), out);
-                        System.out.println("Rejected socket for user " + username);
+                        System.out.println("Rejected user " + username + " for duplicate username");
+                        in.close();
+                        out.close();
+                        client.close();
                     }
                 }
-
             }
         } catch (PlaceException e) {
             System.err.println("Failed receiving login request from new client");

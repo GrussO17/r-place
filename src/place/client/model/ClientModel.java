@@ -6,7 +6,7 @@ import place.PlaceTile;
 import java.util.Observable;
 
 public class ClientModel extends Observable {
-    public PlaceBoard board;
+    private PlaceBoard board;
 
     public void createBoard(int dim) {
         board = new PlaceBoard(dim);

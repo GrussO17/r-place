@@ -27,7 +27,7 @@ public class PlaceClientThread extends Thread implements Observer {
         this.username = username;
     }
 
-    public void close() {
+    private void close() {
         try {
             in.close();
             out.close();

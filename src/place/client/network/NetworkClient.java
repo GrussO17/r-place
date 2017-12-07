@@ -42,10 +42,11 @@ public class NetworkClient extends Thread {
 
             PlaceExchange.send(new PlaceRequest<>(LOGIN, username), networkOut);
 
-            PlaceRequest b = PlaceExchange.receive(networkIn);
-            if (b.getType() == PlaceRequest.RequestType.BOARD)
-                board((PlaceBoard) b.getData());
-
+            PlaceRequest req = PlaceExchange.receive(networkIn);
+            if (!handleRequest(req)) {
+                close();
+                System.exit(1);
+            }
         } catch (IOException e) {
             throw new PlaceException(e);
         }
@@ -53,42 +54,50 @@ public class NetworkClient extends Thread {
 
     public void run() {
         try {
-            MAINLOOP:
             while (true) {
-                PlaceRequest input = (PlaceRequest) this.networkIn.readUnshared();
-                PlaceRequest.RequestType type = input.getType();
-                switch (type) {
-                    case LOGIN_SUCCESS:
-                        loginSuccess();
-                        break;
-                    case TILE_CHANGED:
-                        tileChanged((PlaceTile) input.getData());
-                        break;
-                    case ERROR:
-                        System.out.println("Error: " + input.getData());
-                        break MAINLOOP;
-                    default:
-                        System.err.println("Unrecognized request: " + input.toString());
-                        break MAINLOOP;
+                PlaceRequest req = PlaceExchange.receive(networkIn);
+                if (!handleRequest(req)) {
+                    break;
                 }
             }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (PlaceException e) {
             e.printStackTrace();
+            System.out.println("Error reading from server");
         } finally {
             close();
-            System.exit(1);
+        }
+        System.exit(1);
+    }
+
+    private boolean handleRequest(PlaceRequest req) {
+        switch (req.getType()) {
+            case BOARD:
+                board((PlaceBoard) req.getData());
+                return true;
+            case LOGIN_SUCCESS:
+                loginSuccess();
+                return true;
+            case TILE_CHANGED:
+                tileChanged((PlaceTile) req.getData());
+                return true;
+            case ERROR:
+                System.out.println("Error: " + req.getData());
+                return false;
+            default:
+                System.out.println("Unrecognized request: " + req.toString());
+                return false;
         }
     }
 
-    public void loginSuccess() {
+    private void loginSuccess() {
         System.out.println("Successfully connected to server");
     }
 
-    public void tileChanged(PlaceTile tile) {
+    private void tileChanged(PlaceTile tile) {
         model.setTile(tile);
     }
 
-    public void board(PlaceBoard board) {
+    private void board(PlaceBoard board) {
         model.createBoard(board.DIM);
     }
 

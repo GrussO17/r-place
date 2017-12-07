@@ -6,16 +6,14 @@ import place.PlaceTile;
 import java.util.Observable;
 
 public class ServerModel extends Observable {
-    public PlaceBoard board;
+    private PlaceBoard board;
 
     public ServerModel(int dim) {
         board = new PlaceBoard(dim);
     }
 
-    public PlaceBoard getPlaceBoard(){return board;}
-
-    public PlaceTile[][] getBoard() {
-        return board.getBoard();
+    public PlaceBoard getPlaceBoard() {
+        return board;
     }
 
     public void setTile(PlaceTile tile) {
