@@ -43,67 +43,60 @@ public class NetworkClient extends Thread {
             PlaceExchange.send(new PlaceRequest<>(LOGIN, username), networkOut);
 
             PlaceRequest b = PlaceExchange.receive(networkIn);
-            if(b.getType() == PlaceRequest.RequestType.BOARD)
-                board((PlaceBoard)b.getData());
+            if (b.getType() == PlaceRequest.RequestType.BOARD)
+                board((PlaceBoard) b.getData());
 
         } catch (IOException e) {
             throw new PlaceException(e);
         }
     }
 
-    /*public void startThread(){
-        Thread netThread = new Thread(() -> this.run());
-        netThread.start();
-    }*/
-
-    public void run(){
-        MAINLOOP: while (true) {
-            try {
+    public void run() {
+        try {
+            MAINLOOP:
+            while (true) {
                 PlaceRequest input = (PlaceRequest) this.networkIn.readUnshared();
                 PlaceRequest.RequestType type = input.getType();
-                switch(type){
+                switch (type) {
                     case LOGIN_SUCCESS:
                         loginSuccess();
                         break;
                     case TILE_CHANGED:
-                        tileChanged((PlaceTile)input.getData());
+                        tileChanged((PlaceTile) input.getData());
                         break;
                     default:
-                        System.err.println("Unrecognized Request" + input.toString());
+                        System.err.println("Unrecognized request: " + input.toString());
                         break MAINLOOP;
                 }
-
             }
-            catch(IOException | ClassNotFoundException e ){
-                e.printStackTrace();
-            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
-    public void loginSuccess(){
+    public void loginSuccess() {
         System.out.println("Successfully connected to server");
     }
 
-    public void tileChanged(PlaceTile tile){
+    public void tileChanged(PlaceTile tile) {
         model.setTile(tile);
     }
 
-    public void board(PlaceBoard board){
+    public void board(PlaceBoard board) {
         model.createBoard(board.DIM);
     }
 
 
-    public void close(){
+    public void close() {
         try {
             this.sock.close();
-        }
-        catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
 
-    public void sendMove(PlaceTile tile) throws PlaceException{
+    public void sendMove(PlaceTile tile) throws PlaceException {
         PlaceExchange.send(new PlaceRequest<>(PlaceRequest.RequestType.CHANGE_TILE, tile), networkOut);
     }
 }

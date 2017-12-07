@@ -1,6 +1,8 @@
 package place.server;
 
+import place.PlaceException;
 import place.PlaceTile;
+import place.network.PlaceExchange;
 import place.network.PlaceRequest;
 import place.server.model.ServerModel;
 
@@ -32,31 +34,33 @@ public class PlaceClientThread extends Thread {
     }
 
     public void run() {
-        System.out.println("asdf asdf asdfa");
         try {
             out.writeUnshared(new PlaceRequest<>(PlaceRequest.RequestType.BOARD, board.getPlaceBoard()));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        while (true)
-            try {
+        try {
+            while (true) {
                 PlaceRequest input = (PlaceRequest) this.in.readUnshared();
                 if (input.getType() == PlaceRequest.RequestType.CHANGE_TILE) {
-                    if (board.isValid((PlaceTile) input.getData())) {
-                        board.setTile((PlaceTile) input.getData());
+                    PlaceTile tile = (PlaceTile) input.getData();
+                    if (board.isValid(tile)) {
+                        board.setTile(tile);
+                        System.out.println("move made: " + tile.toString());
+                        PlaceExchange.send((new PlaceRequest<>(PlaceRequest.RequestType.TILE_CHANGED, tile)), out);
                     } else {
                         out.writeUnshared(new PlaceRequest<>(PlaceRequest.RequestType.ERROR, "Invalid move"));
                     }
                 } else {
                     break;
                 }
-
-            } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-                break;
-            } finally {
-                close();
-                PlaceServer.logoff(username);
             }
+        } catch (IOException | ClassNotFoundException | PlaceException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+            PlaceServer.logoff(username);
+        }
+
     }
 }

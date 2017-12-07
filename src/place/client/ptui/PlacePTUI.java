@@ -55,7 +55,7 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
     }
 
     public void refresh() {
-        if(model.getBoard() == null){
+        if (model.getBoard() == null) {
             return;
         }
         try {
@@ -65,15 +65,17 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
                 }
                 userOut.println();
             }
+            userOut.println();
             userOut.print("Enter your move [row] [col] [color]: ");
             userOut.flush();
             PlaceColor color = PlaceColor.WHITE;
-            String[] response = userIn.nextLine().split(" "); //TODO: will this get interrupted if the board updates again?
-            for(PlaceColor c: PlaceColor.values()){
-                if(c.getNumber() == Integer.parseInt(response[2]))
+            String[] response = userIn.nextLine().split(" ");
+            for (PlaceColor c : PlaceColor.values()) {
+                if (c.getNumber() == Integer.parseInt(response[2]))
                     color = c;
             }
-            serverConn.sendMove(new PlaceTile(Integer.parseInt(response[0]), Integer.parseInt(response[1]), getArguments().get(2), color));
+            serverConn.sendMove(new PlaceTile(Integer.parseInt(response[0]),
+                    Integer.parseInt(response[1]), getArguments().get(2), color));
         } catch (Exception e) {
             e.printStackTrace();
         }
