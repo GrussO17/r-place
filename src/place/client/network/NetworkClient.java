@@ -12,28 +12,11 @@ import java.net.Socket;
 
 import static place.network.PlaceRequest.RequestType.LOGIN;
 
-public class NetworkClient {
+public class NetworkClient extends Thread {
     private Socket sock;
     private ObjectInputStream networkIn;
     private ObjectOutputStream networkOut;
     private ClientModel model;
-    private boolean go;
-
-    /**
-     * Accessor that takes multithreaded access into account
-     *
-     * @return whether it ok to continue or not
-     */
-    private synchronized boolean goodToGo() {
-        return this.go;
-    }
-
-    /**
-     * Multithread-safe mutator
-     */
-    private synchronized void stop() {
-        this.go = false;
-    }
 
     /**
      * Hook up with a Place server. Because of the nature of the server
@@ -56,21 +39,25 @@ public class NetworkClient {
             this.networkOut = new ObjectOutputStream(sock.getOutputStream());
             this.networkIn = new ObjectInputStream(sock.getInputStream());
             this.model = model;
-            this.go = true;
 
             PlaceExchange.send(new PlaceRequest<>(LOGIN, username), networkOut);
 
-            Thread netThread = new Thread(() -> this.run());
-            netThread.start();
+            PlaceRequest b = PlaceExchange.receive(networkIn);
+            if(b.getType() == PlaceRequest.RequestType.BOARD)
+                board((PlaceBoard)b.getData());
+
         } catch (IOException e) {
             throw new PlaceException(e);
         }
     }
 
-
+    /*public void startThread(){
+        Thread netThread = new Thread(() -> this.run());
+        netThread.start();
+    }*/
 
     public void run(){
-        while ( this.goodToGo() ) {
+        MAINLOOP: while (true) {
             try {
                 PlaceRequest input = (PlaceRequest) this.networkIn.readUnshared();
                 PlaceRequest.RequestType type = input.getType();
@@ -78,16 +65,12 @@ public class NetworkClient {
                     case LOGIN_SUCCESS:
                         loginSuccess();
                         break;
-                    case BOARD:
-                        board((PlaceBoard)input.getData());
-                        break;
                     case TILE_CHANGED:
                         tileChanged((PlaceTile)input.getData());
                         break;
                     default:
                         System.err.println("Unrecognized Request" + input.toString());
-                        this.stop();
-                        break;
+                        break MAINLOOP;
                 }
 
             }
