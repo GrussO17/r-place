@@ -36,6 +36,8 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
     private PrintWriter userOut;
 
 
+    public PlacePTUI(){}
+
     public synchronized void go(Scanner userIn, PrintWriter userOut) {
         this.userIn = userIn;
         this.userOut = userOut;

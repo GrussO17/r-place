@@ -26,7 +26,7 @@ public class PlaceServer {
             while(true){
                 Socket client = serverSocket.accept();
                 try {
-                    PlaceRequest loginRequest = PlaceExchange.receive((ObjectInputStream) client.getInputStream());
+                    PlaceRequest loginRequest = PlaceExchange.receive(new ObjectInputStream(client.getInputStream()));
                     if (loginRequest.getType() == PlaceRequest.RequestType.LOGIN) {
                         String username = (String)loginRequest.getData();
                         if (!users.contains(username)) {
