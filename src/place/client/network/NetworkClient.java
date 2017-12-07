@@ -110,11 +110,6 @@ public class NetworkClient {
     }
 
 
-    public void sendTile(PlaceTile tile) throws IOException{
-        this.networkOut.writeUnshared(new PlaceRequest<>(PlaceRequest.RequestType.CHANGE_TILE, tile));
-    }
-
-
     public void close(){
         try {
             this.sock.close();
