@@ -52,6 +52,7 @@ public class PlaceClientThread extends Thread {
                 }
 
             } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
                 break;
             } finally {
                 close();
