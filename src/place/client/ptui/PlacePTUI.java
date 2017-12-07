@@ -36,14 +36,9 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
      */
     private PrintWriter userOut;
 
-
-    public PlacePTUI() {
-    }
-
     public synchronized void go(Scanner userIn, PrintWriter userOut) {
         this.userIn = userIn;
         this.userOut = userOut;
-        this.model.addObserver(this);
         this.refresh();
         while (true) {
             try {
@@ -92,7 +87,9 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
             String username = args.get(2);
 
             this.model = new ClientModel();
+            this.model.addObserver(this);
             this.serverConn = new NetworkClient(host, port, username, model);
+            serverConn.start();
         } catch (PlaceException e) {
             e.printStackTrace();
         }
