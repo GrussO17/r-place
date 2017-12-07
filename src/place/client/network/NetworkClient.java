@@ -9,7 +9,6 @@ import place.network.PlaceRequest;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Scanner;
 
 import static place.network.PlaceRequest.RequestType.LOGIN;
 
@@ -37,8 +36,7 @@ public class NetworkClient {
     }
 
     /**
-     * Hook up with a Reversi game server already running and waiting for
-     * two players to connect. Because of the nature of the server
+     * Hook up with a Place server. Because of the nature of the server
      * protocol, this constructor actually blocks waiting for the first
      * message from the server that tells it how big the board will be.
      * Afterwards a thread that listens for server messages and forwards
@@ -60,7 +58,7 @@ public class NetworkClient {
             this.model = model;
             this.go = true;
 
-            //send username
+            PlaceExchange.send(new PlaceRequest<>(LOGIN, username), networkOut);
 
             Thread netThread = new Thread(() -> this.run());
             netThread.start();
@@ -113,7 +111,7 @@ public class NetworkClient {
 
 
     public void sendTile(PlaceTile tile) throws IOException{
-        this.networkOut.writeUnshared(new PlaceRequest(PlaceRequest.RequestType.CHANGE_TILE, tile));
+        this.networkOut.writeUnshared(new PlaceRequest<>(PlaceRequest.RequestType.CHANGE_TILE, tile));
     }
 
 
@@ -128,6 +126,6 @@ public class NetworkClient {
 
 
     public void sendMove(PlaceTile tile) throws PlaceException{
-        PlaceExchange.send(new PlaceRequest(PlaceRequest.RequestType.CHANGE_TILE, tile), networkOut);
+        PlaceExchange.send(new PlaceRequest<>(PlaceRequest.RequestType.CHANGE_TILE, tile), networkOut);
     }
 }

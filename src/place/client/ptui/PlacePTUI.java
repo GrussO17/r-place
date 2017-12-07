@@ -36,13 +36,21 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
     private PrintWriter userOut;
 
 
-    public PlacePTUI(){}
+    public PlacePTUI() {
+    }
 
     public synchronized void go(Scanner userIn, PrintWriter userOut) {
         this.userIn = userIn;
         this.userOut = userOut;
         this.model.addObserver(this);
         this.refresh();
+        while (true) {
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void update(Observable t, Object o) {
@@ -51,14 +59,18 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
     }
 
     public void refresh() {
-        for (PlaceTile[] row : model.getBoard()) {
-            for (PlaceTile tile : row) {
-                userOut.print(tile.getColor());
+        try {
+            for (PlaceTile[] row : model.getBoard()) {
+                for (PlaceTile tile : row) {
+                    userOut.print(tile.getColor());
+                }
+                userOut.println();
             }
-            userOut.println();
+            userOut.print("Enter your move [row] [col] [color]: ");
+            userOut.print("you typed: " + userIn.nextLine()); //TODO: will this get interrupted if the board updates again?
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        userOut.print("Enter your move [row] [col] [color]: ");
-        userOut.print("you typed: " + userIn.nextLine()); //TODO: will this get interrupted if the board updates again?
     }
 
     public void init() {
