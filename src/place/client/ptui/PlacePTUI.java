@@ -1,5 +1,6 @@
 package place.client.ptui;
 
+import place.PlaceColor;
 import place.PlaceException;
 import place.PlaceTile;
 import place.client.model.ClientModel;
@@ -59,6 +60,9 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
     }
 
     public void refresh() {
+        if(model.getBoard() == null){
+            return;
+        }
         try {
             for (PlaceTile[] row : model.getBoard()) {
                 for (PlaceTile tile : row) {
@@ -67,7 +71,14 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
                 userOut.println();
             }
             userOut.print("Enter your move [row] [col] [color]: ");
-            userOut.print("you typed: " + userIn.nextLine()); //TODO: will this get interrupted if the board updates again?
+            userOut.flush();
+            PlaceColor color = PlaceColor.WHITE;
+            String[] response = userIn.nextLine().split(" "); //TODO: will this get interrupted if the board updates again?
+            for(PlaceColor c: PlaceColor.values()){
+                if(c.getNumber() == Integer.parseInt(response[2]))
+                    color = c;
+            }
+            serverConn.sendMove(new PlaceTile(Integer.parseInt(response[0]), Integer.parseInt(response[1]), getArguments().get(2), color));
         } catch (Exception e) {
             e.printStackTrace();
         }

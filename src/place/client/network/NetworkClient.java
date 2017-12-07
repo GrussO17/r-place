@@ -53,8 +53,8 @@ public class NetworkClient {
             throws PlaceException {
         try {
             this.sock = new Socket(hostname, port);
-            this.networkIn = new ObjectInputStream(sock.getInputStream());
             this.networkOut = new ObjectOutputStream(sock.getOutputStream());
+            this.networkIn = new ObjectInputStream(sock.getInputStream());
             this.model = model;
             this.go = true;
 
@@ -107,11 +107,6 @@ public class NetworkClient {
 
     public void board(PlaceBoard board){
         model.createBoard(board.DIM);
-    }
-
-
-    public void sendTile(PlaceTile tile) throws IOException{
-        this.networkOut.writeUnshared(new PlaceRequest<>(PlaceRequest.RequestType.CHANGE_TILE, tile));
     }
 
 
