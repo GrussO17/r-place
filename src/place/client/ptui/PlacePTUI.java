@@ -86,11 +86,7 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
                     int row = Integer.parseInt(response[0]);
                     int col = Integer.parseInt(response[1]);
                     int colorNum = Integer.parseInt(response[2]);
-                    for (PlaceColor c : PlaceColor.values()) {
-                        if (c.getNumber() == colorNum) {
-                            color = c;
-                        }
-                    }
+                    color = PlaceColor.values()[colorNum];
                     serverConn.sendMove(new PlaceTile(row, col, username, color, System.currentTimeMillis()));
                     break;
                 } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
