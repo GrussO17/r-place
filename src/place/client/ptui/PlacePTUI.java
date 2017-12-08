@@ -91,7 +91,7 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
                             color = c;
                         }
                     }
-                    serverConn.sendMove(new PlaceTile(row, col, username, color));
+                    serverConn.sendMove(new PlaceTile(row, col, username, color, System.currentTimeMillis()));
                     break;
                 } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
                     userOut.println("Invalid input, try again");

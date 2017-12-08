@@ -61,6 +61,11 @@ public class PlaceClientThread extends Thread implements Observer {
                     } else {
                         out.writeUnshared(new PlaceRequest<>(PlaceRequest.RequestType.ERROR, "Invalid move"));
                     }
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        System.out.println(username + "'s client thread sleep interrupted");
+                    }
                 } else {
                     break;
                 }
