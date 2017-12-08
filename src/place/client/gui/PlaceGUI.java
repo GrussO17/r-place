@@ -1,6 +1,7 @@
 package place.client.gui;
 
 import javafx.application.Application;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -106,9 +107,10 @@ public class PlaceGUI extends Application implements Observer {
     public void start(Stage s) {
         BorderPane border = new BorderPane();
 
+        Canvas canvas = new Canvas(500,500);
         for(PlaceTile[] row: model.getBoard() ) {
             for (PlaceTile tile : row) {
-
+                canvas.
             }
         }
 
