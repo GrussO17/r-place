@@ -76,7 +76,7 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
                 userOut.println();
             }
             userOut.println();
-            PlaceColor color = PlaceColor.WHITE;
+            PlaceColor color;
             String[] response;
             while (true) {
                 userOut.print("Enter your move [row] [col] [color]: ");
