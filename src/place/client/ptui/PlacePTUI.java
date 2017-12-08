@@ -53,7 +53,7 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
             try {
                 this.wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                userOut.println("go() waiting interrupted");
             }
         }
     }
@@ -68,6 +68,7 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
             return;
         }
         try {
+            userOut.println();
             for (PlaceTile[] row : model.getBoard()) {
                 for (PlaceTile tile : row) {
                     userOut.print(tile.getColor());
@@ -93,7 +94,7 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
                     serverConn.sendMove(new PlaceTile(row, col, username, color));
                     break;
                 } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                    System.out.println("Invalid input, try again");
+                    userOut.println("Invalid input, try again");
                 }
             }
         } catch (Exception e) {
