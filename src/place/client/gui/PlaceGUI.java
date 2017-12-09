@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
@@ -18,7 +17,6 @@ import place.PlaceTile;
 import place.client.model.ClientModel;
 import place.client.network.NetworkClient;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Observable;
@@ -55,13 +53,16 @@ public class PlaceGUI extends Application implements Observer {
     public void update(Observable t, Object o) {
         assert t == this.model : "Update from non-model Observable";
         PlaceTile tile = (PlaceTile)o;
+        javafx.application.Platform.runLater(() -> refresh(tile));
+    }
+
+    private void refresh(PlaceTile tile){
         PlaceColor color = tile.getColor();
         int row = tile.getRow();
         int col = tile.getCol();
         rectangles[row][col].setFill(Color.rgb(color.getRed(), color.getGreen(), color.getBlue()));
         tooltips[row][col].setText(String.format("(%d, %d)\n%s\n%s",
                 row, col, tile.getOwner(), new Date(tile.getTime()).toString()));
-
     }
 
     private PlaceTile getNewTile(PlaceTile tile){
