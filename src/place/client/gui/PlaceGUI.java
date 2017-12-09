@@ -64,7 +64,7 @@ public class PlaceGUI extends Application implements Observer {
 
     }
 
-    public PlaceTile getNewTile(PlaceTile tile){
+    private PlaceTile getNewTile(PlaceTile tile){
         return new PlaceTile(tile.getRow(), tile.getCol(), username,
                 model.getCurrentColor(), System.currentTimeMillis());
     }
@@ -77,7 +77,7 @@ public class PlaceGUI extends Application implements Observer {
         PlaceTile[][] board = model.getBoard();
         for (int row = 0; row < rectangles.length; row++) {
             for (int col = 0; col < rectangles[0].length; col++) {
-                Rectangle rect = new Rectangle(col, row, 10, 10);
+                Rectangle rect = new Rectangle(col, row, 800/board.length, 750/board[0].length);
                 PlaceTile tile = board[row][col];
                 PlaceColor color = tile.getColor();
                 rect.setFill(Color.rgb(color.getRed(), color.getGreen(), color.getBlue()));
