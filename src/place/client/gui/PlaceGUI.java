@@ -5,11 +5,12 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import place.PlaceColor;
 import place.PlaceException;
@@ -17,6 +18,8 @@ import place.PlaceTile;
 import place.client.model.ClientModel;
 import place.client.network.NetworkClient;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -37,6 +40,13 @@ public class PlaceGUI extends Application implements Observer {
      */
     private String username;
 
+    /**
+     * 2D array of Rectangles for the UI to use
+     */
+    private Rectangle[][] rectangles;
+
+    private Tooltip[][] tooltips;
+
 
     public static void main(String[] args) {
         Application.launch(args);
@@ -48,15 +58,26 @@ public class PlaceGUI extends Application implements Observer {
     }
 
     public void start(Stage stage) {
+        rectangles = new Rectangle[model.getBoard().length][model.getBoard()[0].length];
+        tooltips = new Tooltip[model.getBoard().length][model.getBoard()[0].length];
         BorderPane pane = new BorderPane();
-
-        Canvas canvas = new Canvas(800, 800);
-        for (PlaceTile[] row : model.getBoard()) {
-            for (PlaceTile tile : row) {
-                //canvas.
+        GridPane grid = new GridPane();
+        PlaceTile[][] board = model.getBoard();
+        for (int row = 0; row < rectangles.length; row++) {
+            for (int col = 0; col < rectangles[0].length; col++) {
+                Rectangle rect = new Rectangle(col, row, 10, 10);
+                PlaceTile tile = board[row][col];
+                PlaceColor color = tile.getColor();
+                rect.setFill(Color.rgb(color.getRed(), color.getGreen(), color.getBlue()));
+                Tooltip tooltip = new Tooltip(String.format("(%d, %d)\n%s\n%s",
+                        tile.getRow(), tile.getCol(), tile.getOwner(), new Date(tile.getTime()).toString()));
+                tooltips[row][col] = tooltip;
+                Tooltip.install(rect, tooltip);
+                rectangles[row][col] = rect;
+                grid.add(rect, col, row);
             }
         }
-        pane.setCenter(canvas);
+        pane.setCenter(grid);
 
         HBox buttons = new HBox();
         ToggleGroup group = new ToggleGroup();
@@ -68,6 +89,7 @@ public class PlaceGUI extends Application implements Observer {
                     CornerRadii.EMPTY, Insets.EMPTY)));
             b.setOnAction(event -> model.setCurrentColor(color));
             b.setToggleGroup(group);
+            b.setMinWidth(0);
             b.setPrefWidth(50);
             b.setPrefHeight(50);
             buttons.getChildren().add(b);

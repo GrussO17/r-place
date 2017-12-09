@@ -71,7 +71,7 @@ public class PlaceClientThread extends Thread implements Observer {
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         } finally {
             PlaceServer.logoff(username);
             close();
