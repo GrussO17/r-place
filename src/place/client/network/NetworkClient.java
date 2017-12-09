@@ -113,7 +113,11 @@ public class NetworkClient extends Thread {
     }
 
 
-    public void sendMove(PlaceTile tile) throws PlaceException {
-        PlaceExchange.send(new PlaceRequest<>(PlaceRequest.RequestType.CHANGE_TILE, tile), networkOut);
+    public void sendMove(PlaceTile tile){
+        try{
+            PlaceExchange.send(new PlaceRequest<>(PlaceRequest.RequestType.CHANGE_TILE, tile), networkOut);
+        } catch(PlaceException e){
+            System.err.println("Error sending move");
+        }
     }
 }

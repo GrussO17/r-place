@@ -54,7 +54,19 @@ public class PlaceGUI extends Application implements Observer {
 
     public void update(Observable t, Object o) {
         assert t == this.model : "Update from non-model Observable";
+        PlaceTile tile = (PlaceTile)o;
+        PlaceColor color = tile.getColor();
+        int row = tile.getRow();
+        int col = tile.getCol();
+        rectangles[row][col].setFill(Color.rgb(color.getRed(), color.getGreen(), color.getBlue()));
+        tooltips[row][col].setText(String.format("(%d, %d)\n%s\n%s",
+                row, col, tile.getOwner(), new Date(tile.getTime()).toString()));
 
+    }
+
+    public PlaceTile getNewTile(PlaceTile tile){
+        return new PlaceTile(tile.getRow(), tile.getCol(), username,
+                model.getCurrentColor(), System.currentTimeMillis());
     }
 
     public void start(Stage stage) {
@@ -73,6 +85,7 @@ public class PlaceGUI extends Application implements Observer {
                         tile.getRow(), tile.getCol(), tile.getOwner(), new Date(tile.getTime()).toString()));
                 tooltips[row][col] = tooltip;
                 Tooltip.install(rect, tooltip);
+                rect.setOnMouseClicked(e -> serverConn.sendMove(getNewTile(tile)));
                 rectangles[row][col] = rect;
                 grid.add(rect, col, row);
             }
