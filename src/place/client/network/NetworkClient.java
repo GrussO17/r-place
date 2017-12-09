@@ -72,7 +72,7 @@ public class NetworkClient extends Thread {
     private boolean handleRequest(PlaceRequest req) {
         switch (req.getType()) {
             case BOARD:
-                board((PlaceBoard) req.getData());
+                model.createBoard((PlaceBoard)req.getData());
                 return true;
             case LOGIN_SUCCESS:
                 loginSuccess();
@@ -95,10 +95,6 @@ public class NetworkClient extends Thread {
 
     private void tileChanged(PlaceTile tile) {
         model.setTile(tile);
-    }
-
-    private void board(PlaceBoard board) {
-        model.createBoard(board.DIM);
     }
 
 

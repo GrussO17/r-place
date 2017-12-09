@@ -10,8 +10,8 @@ public class ClientModel extends Observable {
     private PlaceBoard board;
     private PlaceColor currentColor = PlaceColor.BLACK;
 
-    public void createBoard(int dim) {
-        board = new PlaceBoard(dim);
+    public void createBoard(PlaceBoard board){
+        this.board = board;
     }
 
     public PlaceTile[][] getBoard() {
