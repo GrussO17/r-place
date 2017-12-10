@@ -7,6 +7,7 @@ import place.client.model.ClientModel;
 import place.client.network.NetworkClient;
 
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -60,12 +61,27 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
         this.userIn = userIn;
         this.userOut = userOut;
         this.refresh();
+        String[] response;
+        PlaceColor color;
+
         //noinspection InfiniteLoopStatement
         while (true) {
             try {
-                this.wait();
-            } catch (InterruptedException e) {
-                userOut.println("go() waiting interrupted");
+                response = userIn.nextLine().split(" ");
+                int row = Integer.parseInt(response[0]);
+                if (row == -1) {
+                    userOut.println("Stopping");
+                    stop();
+                    System.exit(0);
+                }
+                int col = Integer.parseInt(response[1]);
+                int colorNum = Integer.parseInt(response[2]);
+                color = PlaceColor.values()[colorNum];
+                serverConn.sendMove(new PlaceTile(row, col, username, color, System.currentTimeMillis()));
+            } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                userOut.println("Invalid input, try again");
+                userOut.print("Enter your move [row] [col] [color]: ");
+                userOut.flush();
             }
         }
     }
@@ -97,23 +113,8 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
                 userOut.println();
             }
             userOut.println();
-            PlaceColor color;
-            String[] response;
-            while (true) {
-                userOut.print("Enter your move [row] [col] [color]: ");
-                userOut.flush();
-                try {
-                    response = userIn.nextLine().split(" ");
-                    int row = Integer.parseInt(response[0]);
-                    int col = Integer.parseInt(response[1]);
-                    int colorNum = Integer.parseInt(response[2]);
-                    color = PlaceColor.values()[colorNum];
-                    serverConn.sendMove(new PlaceTile(row, col, username, color, System.currentTimeMillis()));
-                    break;
-                } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                    userOut.println("Invalid input, try again");
-                }
-            }
+            userOut.print("Enter your move [row] [col] [color]: ");
+            userOut.flush();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -129,13 +130,18 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
             String host = args.get(0);
             int port = Integer.parseInt(args.get(1));
             username = args.get(2);
-
             this.model = new ClientModel();
             this.model.addObserver(this);
             this.serverConn = new NetworkClient(host, port, username, model);
             serverConn.start();
         } catch (PlaceException e) {
-            e.printStackTrace();
+            if (e.getCause().getClass() == ConnectException.class) {
+                System.out.println("Error connecting to server");
+            } else {
+                System.out.println("Error in initialization");
+            }
+            stop();
+            System.exit(1);
         }
     }
 
@@ -143,8 +149,14 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
      * Close all the network connections
      */
     public void stop() {
-        this.userIn.close();
-        this.userOut.close();
-        this.serverConn.close();
+        if (userIn != null) {
+            userIn.close();
+        }
+        if (userOut != null) {
+            userOut.close();
+        }
+        if (serverConn != null) {
+            serverConn.close();
+        }
     }
 }

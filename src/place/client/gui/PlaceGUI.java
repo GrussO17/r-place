@@ -17,6 +17,7 @@ import place.PlaceTile;
 import place.client.model.ClientModel;
 import place.client.network.NetworkClient;
 
+import java.net.ConnectException;
 import java.util.Date;
 import java.util.List;
 import java.util.Observable;
@@ -183,7 +184,13 @@ public class PlaceGUI extends Application implements Observer {
             this.serverConn = new NetworkClient(host, port, username, model);
             serverConn.start();
         } catch (PlaceException e) {
-            e.printStackTrace();
+            if (e.getCause().getClass() == ConnectException.class) {
+                System.out.println("Error connecting to server");
+            } else {
+                System.out.println("Error in initialization");
+            }
+            stop();
+            System.exit(1);
         }
     }
 
@@ -191,6 +198,8 @@ public class PlaceGUI extends Application implements Observer {
      * Close the connection to the server; used by Application
      */
     public void stop() {
-        this.serverConn.close();
+        if (serverConn != null) {
+            serverConn.close();
+        }
     }
 }
