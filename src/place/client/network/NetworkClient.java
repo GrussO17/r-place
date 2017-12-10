@@ -41,7 +41,12 @@ public class NetworkClient extends Thread {
 
             PlaceExchange.send(networkOut, new PlaceRequest<>(LOGIN, username));
 
-            PlaceRequest req = PlaceExchange.receive(networkIn);
+            PlaceRequest req = PlaceExchange.receive(networkIn); //receive LOGIN_SUCCESS
+            if (!handleRequest(req)) {
+                close();
+                System.exit(1);
+            }
+            req = PlaceExchange.receive(networkIn); //receive board
             if (!handleRequest(req)) {
                 close();
                 System.exit(1);
@@ -84,7 +89,7 @@ public class NetworkClient extends Thread {
                 model.createBoard((PlaceBoard) req.getData());
                 return true;
             case LOGIN_SUCCESS:
-                System.out.println("Successfully connected to server");
+                System.out.println((String)req.getData());
                 return true;
             case TILE_CHANGED:
                 model.setTile((PlaceTile) req.getData());

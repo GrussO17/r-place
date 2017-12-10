@@ -72,6 +72,8 @@ public class PlaceClientThread extends Thread implements Observer {
      */
     public void run() {
         try {
+            out.writeUnshared(new PlaceRequest<>(PlaceRequest.RequestType.LOGIN_SUCCESS,
+                    "Login for " + username + " accepted"));
             out.writeUnshared(new PlaceRequest<>(PlaceRequest.RequestType.BOARD, board.getPlaceBoard()));
         } catch (IOException e) {
             e.printStackTrace();
