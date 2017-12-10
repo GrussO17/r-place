@@ -40,7 +40,7 @@ public class NetworkClient extends Thread {
             this.networkIn = new ObjectInputStream(sock.getInputStream());
             this.model = model;
 
-            PlaceExchange.send(new PlaceRequest<>(LOGIN, username), networkOut);
+            PlaceExchange.send(networkOut, new PlaceRequest<>(LOGIN, username));
 
             PlaceRequest req = PlaceExchange.receive(networkIn);
             if (!handleRequest(req)) {
@@ -111,7 +111,7 @@ public class NetworkClient extends Thread {
 
     public void sendMove(PlaceTile tile){
         try{
-            PlaceExchange.send(new PlaceRequest<>(PlaceRequest.RequestType.CHANGE_TILE, tile), networkOut);
+            PlaceExchange.send(networkOut, new PlaceRequest<>(PlaceRequest.RequestType.CHANGE_TILE, tile));
         } catch(PlaceException e){
             System.err.println("Error sending move");
         }

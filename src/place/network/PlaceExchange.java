@@ -7,7 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class PlaceExchange {
-    public static void send(PlaceRequest req, ObjectOutputStream out)
+    public static void send(ObjectOutputStream out, PlaceRequest req)
             throws PlaceException {
         try {
             out.writeUnshared(req);

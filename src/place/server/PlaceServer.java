@@ -36,8 +36,8 @@ public class PlaceServer {
                         new PlaceClientThread(in, out, username, model).start();
                         System.out.println("Started thread for user " + username);
                     } else {
-                        PlaceExchange.send(new PlaceRequest<>(PlaceRequest.RequestType.ERROR,
-                                "Username already taken"), out);
+                        PlaceExchange.send(out, new PlaceRequest<>(PlaceRequest.RequestType.ERROR,
+                                "Username already taken"));
                         System.out.println("Rejected user " + username + " for duplicate username");
                         in.close();
                         out.close();

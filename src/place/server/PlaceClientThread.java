@@ -38,7 +38,7 @@ public class PlaceClientThread extends Thread implements Observer {
 
     public void update(Observable obs, Object o) {
         try {
-            PlaceExchange.send((new PlaceRequest<>(PlaceRequest.RequestType.TILE_CHANGED, (PlaceTile) o)), out);
+            PlaceExchange.send(out, (new PlaceRequest<>(PlaceRequest.RequestType.TILE_CHANGED, (PlaceTile) o)));
         } catch (PlaceException e) {
             System.err.println("error sending updated move");
         }
