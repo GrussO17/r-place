@@ -68,7 +68,6 @@ public class NetworkClient extends Thread {
                 }
             }
         } catch (PlaceException e) {
-            e.printStackTrace();
             System.out.println("Error reading from server");
         } finally {
             close();
