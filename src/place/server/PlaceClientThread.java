@@ -12,6 +12,10 @@ import java.io.ObjectOutputStream;
 import java.util.Observable;
 import java.util.Observer;
 
+/**
+ * PlaceClientThread class; each time the PlaceServer gets a new connection,
+ * it starts a thread to handle the client actions
+ */
 public class PlaceClientThread extends Thread implements Observer {
 
     private ObjectInputStream in;
@@ -19,6 +23,14 @@ public class PlaceClientThread extends Thread implements Observer {
     private ServerModel board;
     private String username;
 
+    /**
+     * Construct a client thread
+     *
+     * @param in       the input stream to receive on
+     * @param out      the output stream to send on
+     * @param username the username of the client associated with this thread
+     * @param board    the model to use
+     */
     public PlaceClientThread(ObjectInputStream in, ObjectOutputStream out, String username, ServerModel board) {
         this.board = board;
         this.board.addObserver(this);
@@ -27,6 +39,9 @@ public class PlaceClientThread extends Thread implements Observer {
         this.username = username;
     }
 
+    /**
+     * Close all the connections of this thread
+     */
     private void close() {
         try {
             in.close();
@@ -36,6 +51,12 @@ public class PlaceClientThread extends Thread implements Observer {
         }
     }
 
+    /**
+     * Update the client for this thread when the server model has changed
+     *
+     * @param obs the server model which changed
+     * @param o   the specific tile which was changed
+     */
     public void update(Observable obs, Object o) {
         try {
             PlaceExchange.send(out, (new PlaceRequest<>(PlaceRequest.RequestType.TILE_CHANGED, (PlaceTile) o)));
@@ -44,6 +65,11 @@ public class PlaceClientThread extends Thread implements Observer {
         }
     }
 
+    /**
+     * Main loop method, waits for client to send messages and
+     * enforces the wait time before another tile can be changed.
+     * Ends if the client sends anything other than a CHANGE_TILE
+     */
     public void run() {
         try {
             out.writeUnshared(new PlaceRequest<>(PlaceRequest.RequestType.BOARD, board.getPlaceBoard()));

@@ -41,14 +41,26 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
      */
     private String username;
 
+    /**
+     * Main method, just starts this UI with ConsoleApplication
+     *
+     * @param args hostname, port, and username
+     */
     public static void main(String[] args) {
         ConsoleApplication.launch(PlacePTUI.class, args);
     }
 
+    /**
+     * Run the UI; keeps going until stopped by closing
+     *
+     * @param userIn  Scanner to read user's input
+     * @param userOut PrintWriter to send user output
+     */
     public synchronized void go(Scanner userIn, PrintWriter userOut) {
         this.userIn = userIn;
         this.userOut = userOut;
         this.refresh();
+        //noinspection InfiniteLoopStatement
         while (true) {
             try {
                 this.wait();
@@ -58,11 +70,20 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
         }
     }
 
+    /**
+     * Update method; calls refresh() when model has changed
+     *
+     * @param t the model
+     * @param o the updated tile
+     */
     public void update(Observable t, Object o) {
         assert t == this.model : "Update from non-model Observable";
         this.refresh();
     }
 
+    /**
+     * Print out the updated board and prompt the user to make a move
+     */
     private void refresh() {
         if (model.getBoard() == null) {
             return;
@@ -98,6 +119,10 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
         }
     }
 
+    /**
+     * Set up this view;
+     * creates the model and controller, gets username
+     */
     public void init() {
         try {
             List<String> args = super.getArguments();
@@ -114,6 +139,9 @@ public class PlacePTUI extends ConsoleApplication implements Observer {
         }
     }
 
+    /**
+     * Close all the network connections
+     */
     public void stop() {
         this.userIn.close();
         this.userOut.close();

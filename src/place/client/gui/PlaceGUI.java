@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+/**
+ * Main Place GUI class; a view in the MVC pattern
+ */
 public class PlaceGUI extends Application implements Observer {
     /**
      * The model for place
@@ -46,17 +49,34 @@ public class PlaceGUI extends Application implements Observer {
     private Tooltip[][] tooltips;
 
 
+    /**
+     * The main method; start this as an Application
+     *
+     * @param args hostname, port, and username
+     */
     public static void main(String[] args) {
         Application.launch(args);
     }
 
+    /**
+     * Update method; run when the model calls notifyObservers
+     *
+     * @param t the observable which has changed
+     * @param o the specific tile which has been updates
+     */
     public void update(Observable t, Object o) {
         assert t == this.model : "Update from non-model Observable";
-        PlaceTile tile = (PlaceTile)o;
+        PlaceTile tile = (PlaceTile) o;
         javafx.application.Platform.runLater(() -> refresh(tile));
     }
 
-    private void refresh(PlaceTile tile){
+    /**
+     * Submethod for update so runLater is easier to write
+     * changes the color of the Rectangle representing the changed tile
+     *
+     * @param tile the tile which has changed
+     */
+    private void refresh(PlaceTile tile) {
         PlaceColor color = tile.getColor();
         int row = tile.getRow();
         int col = tile.getCol();
@@ -65,20 +85,50 @@ public class PlaceGUI extends Application implements Observer {
                 row, col, tile.getOwner(), new Date(tile.getTime()).toString()));
     }
 
-    private PlaceTile getNewTile(PlaceTile tile){
+    /**
+     * Create a new tile with the row and column of the old one,
+     * the currently selected color, and the current time
+     *
+     * @param tile the old tile at the same position
+     * @return the new tile
+     */
+    private PlaceTile getNewTile(PlaceTile tile) {
         return new PlaceTile(tile.getRow(), tile.getCol(), username,
                 model.getCurrentColor(), System.currentTimeMillis());
     }
 
+    /**
+     * Start method, run by Application; sets up the GUI components
+     *
+     * @param stage the stage on which to work
+     */
     public void start(Stage stage) {
-        rectangles = new Rectangle[model.getBoard().length][model.getBoard()[0].length];
-        tooltips = new Tooltip[model.getBoard().length][model.getBoard()[0].length];
         BorderPane pane = new BorderPane();
+        pane.setCenter(createMainGrid());
+        pane.setBottom(createColorSelection());
+        Scene scene = new Scene(pane);
+        stage.setScene(scene);
+        stage.setTitle("Place: " + username);
+        stage.setOnCloseRequest(event -> {
+            Platform.exit();
+            System.exit(0);
+        });
+        stage.show();
+    }
+
+    /**
+     * Create the main GridPane for the GUI; used in start()
+     *
+     * @return GridPane containing Rectangles representing the board
+     */
+    private GridPane createMainGrid() {
         GridPane grid = new GridPane();
         PlaceTile[][] board = model.getBoard();
+        rectangles = new Rectangle[board.length][board[0].length];
+        tooltips = new Tooltip[board.length][board[0].length];
         for (int row = 0; row < rectangles.length; row++) {
             for (int col = 0; col < rectangles[0].length; col++) {
-                Rectangle rect = new Rectangle(col, row, 800/board.length, 750/board[0].length);
+                Rectangle rect = new Rectangle(col, row, 800 / board.length, 750 / board[0].length);
                 PlaceTile tile = board[row][col];
                 PlaceColor color = tile.getColor();
                 rect.setFill(Color.rgb(color.getRed(), color.getGreen(), color.getBlue()));
@@ -91,8 +141,15 @@ public class PlaceGUI extends Application implements Observer {
                 grid.add(rect, col, row);
             }
         }
-        pane.setCenter(grid);
+        return grid;
+    }
 
+    /**
+     * Create the color selection button row
+     *
+     * @return HBox with color selection buttons
+     */
+    private HBox createColorSelection() {
         HBox buttons = new HBox();
         ToggleGroup group = new ToggleGroup();
         for (int c = 0; c < 16; c++) {
@@ -108,25 +165,19 @@ public class PlaceGUI extends Application implements Observer {
             b.setPrefHeight(50);
             buttons.getChildren().add(b);
         }
-        pane.setBottom(buttons);
-        Scene scene = new Scene(pane);
-        stage.setScene(scene);
-        stage.setTitle("Place: " + username);
-        stage.setOnCloseRequest(event -> {
-            Platform.exit();
-            System.exit(0);
-        });
-        stage.show();
+        return buttons;
     }
 
-
+    /**
+     * Init method, run by Application
+     * Creates the model and controller for this view
+     */
     public void init() {
         try {
             List<String> params = super.getParameters().getRaw();
             String host = params.get(0);
             int port = Integer.parseInt(params.get(1));
             username = params.get(2);
-
             this.model = new ClientModel();
             this.model.addObserver(this);
             this.serverConn = new NetworkClient(host, port, username, model);
@@ -136,6 +187,9 @@ public class PlaceGUI extends Application implements Observer {
         }
     }
 
+    /**
+     * Close the connection to the server; used by Application
+     */
     public void stop() {
         this.serverConn.close();
     }

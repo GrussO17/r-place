@@ -11,9 +11,18 @@ import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * The main Place server class;
+ * accepts client connections, checks username and then starts threads
+ */
 public class PlaceServer {
     private static Set<String> users = new HashSet<>();
 
+    /**
+     * The main method; loops accepting client connections until closed
+     *
+     * @param args the port to accept on and the dimension of the board
+     */
     public static void main(String[] args) {
         if (args.length != 2) {
             System.err.println("Usage: java PlaceServer <port> <size>");
@@ -24,6 +33,7 @@ public class PlaceServer {
         ServerModel model = new ServerModel(size);
         System.out.println("Server started");
         try (ServerSocket serverSocket = new ServerSocket(portNum)) {
+            //noinspection InfiniteLoopStatement
             while (true) {
                 Socket client = serverSocket.accept();
                 ObjectInputStream in = new ObjectInputStream(client.getInputStream());
@@ -52,6 +62,11 @@ public class PlaceServer {
         }
     }
 
+    /**
+     * Remove a username from the list of logged-on clients
+     *
+     * @param username the user who left
+     */
     public static void logoff(String username) {
         users.remove(username);
         System.out.println(username + " logged off");

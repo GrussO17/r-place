@@ -12,6 +12,9 @@ import java.net.Socket;
 
 import static place.network.PlaceRequest.RequestType.LOGIN;
 
+/**
+ * NetworkClient class; the controller in MVC, does network operations
+ */
 public class NetworkClient extends Thread {
     private Socket sock;
     private ObjectInputStream networkIn;
@@ -19,11 +22,7 @@ public class NetworkClient extends Thread {
     private ClientModel model;
 
     /**
-     * Hook up with a Place server. Because of the nature of the server
-     * protocol, this constructor actually blocks waiting for the first
-     * message from the server that tells it how big the board will be.
-     * Afterwards a thread that listens for server messages and forwards
-     * them to the game object is started.
+     * Constructor for NetworkClient; connects with a Place server.
      *
      * @param hostname the name of the host running the server program
      * @param port     the port of the server socket on which the server is
@@ -52,6 +51,9 @@ public class NetworkClient extends Thread {
         }
     }
 
+    /**
+     * The main loop; receive network requests and handle them
+     */
     public void run() {
         try {
             while (true) {
@@ -69,16 +71,23 @@ public class NetworkClient extends Thread {
         System.exit(1);
     }
 
+    /**
+     * Handle a PlaceRequest from the server and takes required action
+     *
+     * @param req the request to handle
+     * @return true if the main loop should continue to run, false if not (error condition)
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted") //easier to understand
     private boolean handleRequest(PlaceRequest req) {
         switch (req.getType()) {
             case BOARD:
-                model.createBoard((PlaceBoard)req.getData());
+                model.createBoard((PlaceBoard) req.getData());
                 return true;
             case LOGIN_SUCCESS:
-                loginSuccess();
+                System.out.println("Successfully connected to server");
                 return true;
             case TILE_CHANGED:
-                tileChanged((PlaceTile) req.getData());
+                model.setTile((PlaceTile) req.getData());
                 return true;
             case ERROR:
                 System.out.println("Error: " + req.getData());
@@ -89,15 +98,9 @@ public class NetworkClient extends Thread {
         }
     }
 
-    private void loginSuccess() {
-        System.out.println("Successfully connected to server");
-    }
-
-    private void tileChanged(PlaceTile tile) {
-        model.setTile(tile);
-    }
-
-
+    /**
+     * Close all the network connections
+     */
     public void close() {
         try {
             networkIn.close();
@@ -108,11 +111,15 @@ public class NetworkClient extends Thread {
         }
     }
 
-
-    public void sendMove(PlaceTile tile){
-        try{
+    /**
+     * Send a move to the server
+     *
+     * @param tile the new tile representing the move made
+     */
+    public void sendMove(PlaceTile tile) {
+        try {
             PlaceExchange.send(networkOut, new PlaceRequest<>(PlaceRequest.RequestType.CHANGE_TILE, tile));
-        } catch(PlaceException e){
+        } catch (PlaceException e) {
             System.err.println("Error sending move");
         }
     }
